@@ -1,0 +1,532 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>김주석 | 디지털 명함</title>
+  <meta name="description" content="학생 김주석의 디지털 명함 페이지입니다." />
+  <style>
+    :root {
+      --bg-base: #f4f6fb;
+      --bg-glow-1: rgba(99, 102, 241, 0.16);
+      --bg-glow-2: rgba(14, 165, 233, 0.14);
+      --card-bg: rgba(255, 255, 255, 0.85);
+      --card-border: rgba(15, 23, 42, 0.08);
+      --card-shadow: 0 20px 50px rgba(15, 23, 42, 0.08);
+      --text-primary: #0f172a;
+      --text-secondary: #475569;
+      --text-muted: #64748b;
+      --badge-bg: rgba(99, 102, 241, 0.1);
+      --badge-text: #4f46e5;
+      --link-bg: #ffffff;
+      --link-border: rgba(15, 23, 42, 0.09);
+      --link-hover-bg: #f8fafc;
+      --link-hover-border: rgba(99, 102, 241, 0.45);
+      --toggle-bg: rgba(15, 23, 42, 0.05);
+      --toggle-hover: rgba(15, 23, 42, 0.1);
+      --accent-gradient: linear-gradient(135deg, #4f46e5 0%, #0ea5e9 100%);
+      --toast-bg: #0f172a;
+      --toast-text: #f8fafc;
+    }
+
+    [data-theme="dark"] {
+      --bg-base: #090d16;
+      --bg-glow-1: rgba(99, 102, 241, 0.22);
+      --bg-glow-2: rgba(14, 165, 233, 0.16);
+      --card-bg: rgba(17, 24, 39, 0.8);
+      --card-border: rgba(255, 255, 255, 0.1);
+      --card-shadow: 0 24px 60px rgba(0, 0, 0, 0.55);
+      --text-primary: #f8fafc;
+      --text-secondary: #cbd5e1;
+      --text-muted: #94a3b8;
+      --badge-bg: rgba(129, 140, 248, 0.15);
+      --badge-text: #a5b4fc;
+      --link-bg: rgba(30, 41, 59, 0.72);
+      --link-border: rgba(255, 255, 255, 0.09);
+      --link-hover-bg: rgba(30, 41, 59, 0.98);
+      --link-hover-border: rgba(129, 140, 248, 0.55);
+      --toggle-bg: rgba(255, 255, 255, 0.08);
+      --toggle-hover: rgba(255, 255, 255, 0.15);
+      --toast-bg: #f8fafc;
+      --toast-text: #0f172a;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html, body {
+      height: 100%;
+    }
+
+    body {
+      font-family: "Pretendard", -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Malgun Gothic", "Segoe UI", Roboto, sans-serif;
+      background-color: var(--bg-base);
+      color: var(--text-primary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100dvh;
+      padding: 20px;
+      position: relative;
+      overflow-x: hidden;
+      transition: background-color 0.3s ease, color 0.3s ease;
+    }
+
+    /* Ambient background accents */
+    body::before,
+    body::after {
+      content: "";
+      position: fixed;
+      width: 420px;
+      height: 420px;
+      border-radius: 50%;
+      filter: blur(90px);
+      z-index: 0;
+      pointer-events: none;
+      transition: background 0.3s ease;
+    }
+
+    body::before {
+      top: -120px;
+      left: -100px;
+      background: var(--bg-glow-1);
+    }
+
+    body::after {
+      bottom: -140px;
+      right: -100px;
+      background: var(--bg-glow-2);
+    }
+
+    .card {
+      position: relative;
+      z-index: 1;
+      width: 100%;
+      max-width: 420px;
+      background: var(--card-bg);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid var(--card-border);
+      border-radius: 28px;
+      padding: 36px 28px 28px;
+      box-shadow: var(--card-shadow);
+      transition: background-color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .theme-toggle {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      width: 40px;
+      height: 40px;
+      border-radius: 12px;
+      border: 1px solid var(--card-border);
+      background: var(--toggle-bg);
+      color: var(--text-primary);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: background-color 0.2s ease, transform 0.15s ease;
+    }
+
+    .theme-toggle:hover {
+      background: var(--toggle-hover);
+      transform: translateY(-1px);
+    }
+
+    .theme-toggle:focus-visible,
+    .sns-link:focus-visible,
+    .copy-btn:focus-visible {
+      outline: 2px solid #6366f1;
+      outline-offset: 2px;
+    }
+
+    .icon-sun {
+      display: none;
+    }
+
+    [data-theme="dark"] .icon-moon {
+      display: none;
+    }
+
+    [data-theme="dark"] .icon-sun {
+      display: block;
+    }
+
+    .profile {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      margin-bottom: 28px;
+    }
+
+    .avatar {
+      width: 88px;
+      height: 88px;
+      border-radius: 26px;
+      background: var(--accent-gradient);
+      color: #ffffff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 28px;
+      font-weight: 700;
+      letter-spacing: -0.03em;
+      margin-bottom: 18px;
+      box-shadow: 0 12px 28px rgba(79, 70, 229, 0.28);
+      user-select: none;
+    }
+
+    .name {
+      font-size: 26px;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      line-height: 1.25;
+      margin-bottom: 8px;
+    }
+
+    .role-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 5px 14px;
+      border-radius: 999px;
+      background: var(--badge-bg);
+      color: var(--badge-text);
+      font-size: 13px;
+      font-weight: 600;
+      margin-bottom: 14px;
+    }
+
+    .bio {
+      font-size: 14.5px;
+      line-height: 1.6;
+      color: var(--text-secondary);
+      max-width: 300px;
+      word-break: keep-all;
+    }
+
+    .links {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-bottom: 22px;
+    }
+
+    .sns-link {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 16px;
+      border-radius: 16px;
+      background: var(--link-bg);
+      border: 1px solid var(--link-border);
+      color: var(--text-primary);
+      text-decoration: none;
+      transition: transform 0.18s ease, background-color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .sns-link:hover {
+      transform: translateY(-2px);
+      background: var(--link-hover-bg);
+      border-color: var(--link-hover-border);
+      box-shadow: 0 8px 20px rgba(15, 23, 42, 0.06);
+    }
+
+    .sns-left {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .sns-icon {
+      width: 38px;
+      height: 38px;
+      border-radius: 11px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--toggle-bg);
+      color: var(--text-primary);
+      flex-shrink: 0;
+    }
+
+    .sns-meta {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .sns-name {
+      font-size: 15px;
+      font-weight: 600;
+    }
+
+    .sns-handle {
+      font-size: 12.5px;
+      color: var(--text-muted);
+    }
+
+    .sns-arrow {
+      color: var(--text-muted);
+      transition: transform 0.18s ease, color 0.2s ease;
+    }
+
+    .sns-link:hover .sns-arrow {
+      transform: translateX(3px);
+      color: var(--badge-text);
+    }
+
+    .card-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding-top: 18px;
+      border-top: 1px solid var(--card-border);
+      gap: 12px;
+    }
+
+    .footer-note {
+      font-size: 12.5px;
+      color: var(--text-muted);
+    }
+
+    .copy-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 14px;
+      border-radius: 10px;
+      border: 1px solid var(--card-border);
+      background: var(--toggle-bg);
+      color: var(--text-primary);
+      font-family: inherit;
+      font-size: 12.5px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background-color 0.2s ease, transform 0.15s ease;
+    }
+
+    .copy-btn:hover {
+      background: var(--toggle-hover);
+      transform: translateY(-1px);
+    }
+
+    .toast {
+      position: fixed;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%) translateY(16px);
+      background: var(--toast-bg);
+      color: var(--toast-text);
+      padding: 10px 18px;
+      border-radius: 999px;
+      font-size: 13px;
+      font-weight: 500;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.22s ease, transform 0.22s ease;
+      z-index: 10;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+    }
+
+    .toast.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+
+    @media (max-width: 440px) {
+      .card {
+        padding: 32px 20px 22px;
+        border-radius: 24px;
+      }
+
+      .avatar {
+        width: 78px;
+        height: 78px;
+        font-size: 25px;
+      }
+
+      .name {
+        font-size: 24px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="card" aria-label="김주석 디지털 명함">
+    <button
+      type="button"
+      class="theme-toggle"
+      id="themeToggle"
+      aria-label="다크 모드 전환"
+      title="테마 전환"
+    >
+      <svg class="icon-moon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z" />
+      </svg>
+      <svg class="icon-sun" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <circle cx="12" cy="12" r="4" />
+        <path d="M12 2v2" />
+        <path d="M12 20v2" />
+        <path d="m4.93 4.93 1.41 1.41" />
+        <path d="m17.66 17.66 1.41 1.41" />
+        <path d="M2 12h2" />
+        <path d="M20 12h2" />
+        <path d="m6.34 17.66-1.41 1.41" />
+        <path d="m19.07 4.93-1.41 1.41" />
+      </svg>
+    </button>
+
+    <section class="profile">
+      <div class="avatar" aria-hidden="true">주석</div>
+      <h1 class="name">김주석</h1>
+      <span class="role-badge">학생</span>
+      <p class="bio">배움과 새로운 도전을 즐기는 학생입니다. 아래 채널에서 편하게 소통해요.</p>
+    </section>
+
+    <!-- SNS 링크 3개: href와 @아이디를 본인 계정으로 수정해 사용하세요 -->
+    <nav class="links" aria-label="SNS 링크">
+      <a class="sns-link" href="https://github.com/" target="_blank" rel="noopener noreferrer">
+        <span class="sns-left">
+          <span class="sns-icon" aria-hidden="true">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.53 1.032 1.53 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0 1 12 6.844a9.59 9.59 0 0 1 2.504.337c1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.02 10.02 0 0 0 22 12.017C22 6.484 17.522 2 12 2Z" />
+            </svg>
+          </span>
+          <span class="sns-meta">
+            <span class="sns-name">GitHub</span>
+            <span class="sns-handle">@juseok-kim</span>
+          </span>
+        </span>
+        <svg class="sns-arrow" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M5 12h14" />
+          <path d="m12 5 7 7-7 7" />
+        </svg>
+      </a>
+
+      <a class="sns-link" href="https://instagram.com/" target="_blank" rel="noopener noreferrer">
+        <span class="sns-left">
+          <span class="sns-icon" aria-hidden="true">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <rect width="20" height="20" x="2" y="2" rx="5" ry="5" />
+              <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z" />
+              <line x1="17.5" x2="17.51" y1="6.5" y2="6.5" />
+            </svg>
+          </span>
+          <span class="sns-meta">
+            <span class="sns-name">Instagram</span>
+            <span class="sns-handle">@juseok.daily</span>
+          </span>
+        </span>
+        <svg class="sns-arrow" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M5 12h14" />
+          <path d="m12 5 7 7-7 7" />
+        </svg>
+      </a>
+
+      <a class="sns-link" href="https://www.linkedin.com/" target="_blank" rel="noopener noreferrer">
+        <span class="sns-left">
+          <span class="sns-icon" aria-hidden="true">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M19 3a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h14m-.5 15.5v-5.3a3.26 3.26 0 0 0-3.26-3.26c-.85 0-1.84.52-2.28 1.3v-1.11h-2.79v8.37h2.79v-4.93c0-.77.62-1.4 1.39-1.4a1.4 1.4 0 0 1 1.4 1.4v4.93h2.75M6.88 8.56a1.68 1.68 0 0 0 1.68-1.68c0-.93-.75-1.69-1.68-1.69a1.69 1.69 0 0 0-1.69 1.69c0 .93.76 1.68 1.69 1.68m1.39 9.94v-8.37H5.5v8.37h2.77z" />
+            </svg>
+          </span>
+          <span class="sns-meta">
+            <span class="sns-name">LinkedIn</span>
+            <span class="sns-handle">Kim Juseok</span>
+          </span>
+        </span>
+        <svg class="sns-arrow" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M5 12h14" />
+          <path d="m12 5 7 7-7 7" />
+        </svg>
+      </a>
+    </nav>
+
+    <footer class="card-footer">
+      <span class="footer-note">Digital Business Card</span>
+      <button type="button" class="copy-btn" id="copyBtn">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <rect width="14" height="14" x="8" y="8" rx="2" ry="2" />
+          <path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2" />
+        </svg>
+        링크 복사
+      </button>
+    </footer>
+  </main>
+
+  <div class="toast" id="toast" role="status" aria-live="polite">명함 링크가 복사되었습니다.</div>
+
+  <script>
+    (function () {
+      const root = document.documentElement;
+      const themeToggle = document.getElementById("themeToggle");
+      const copyBtn = document.getElementById("copyBtn");
+      const toast = document.getElementById("toast");
+      const STORAGE_KEY = "digital-card-theme";
+
+      function getInitialTheme() {
+        const saved = localStorage.getItem(STORAGE_KEY);
+        if (saved === "dark" || saved === "light") {
+          return saved;
+        }
+        return window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+      }
+
+      function applyTheme(theme) {
+        root.setAttribute("data-theme", theme);
+        themeToggle.setAttribute(
+          "aria-label",
+          theme === "dark" ? "라이트 모드로 전환" : "다크 모드로 전환"
+        );
+      }
+
+      applyTheme(getInitialTheme());
+
+      themeToggle.addEventListener("click", function () {
+        const current = root.getAttribute("data-theme") === "dark" ? "dark" : "light";
+        const next = current === "dark" ? "light" : "dark";
+        applyTheme(next);
+        localStorage.setItem(STORAGE_KEY, next);
+      });
+
+      let toastTimer = null;
+      function showToast(message) {
+        toast.textContent = message;
+        toast.classList.add("show");
+        clearTimeout(toastTimer);
+        toastTimer = setTimeout(function () {
+          toast.classList.remove("show");
+        }, 2200);
+      }
+
+      copyBtn.addEventListener("click", async function () {
+        const url = window.location.href;
+        try {
+          if (navigator.clipboard && window.isSecureContext) {
+            await navigator.clipboard.writeText(url);
+          } else {
+            const temp = document.createElement("textarea");
+            temp.value = url;
+            temp.style.position = "fixed";
+            temp.style.opacity = "0";
+            document.body.appendChild(temp);
+            temp.select();
+            document.execCommand("copy");
+            document.body.removeChild(temp);
+          }
+          showToast("명함 링크가 복사되었습니다.");
+        } catch (err) {
+          showToast("링크 복사에 실패했습니다.");
+        }
+      });
+    })();
+  </script>
+</body>
+</html>
